@@ -38,8 +38,9 @@ struct Recorder {
 			for (int y = 0; y < mem_size.y; y++) {
 				float min_depth = 1000000000;
 
-				Vector2 raw_position{ x + invalid_depth_band, y };
+				Vector2 raw_position{ x, y };
 				raw_position = raw_position * 4;
+				raw_position.x += invalid_depth_band;
 
 				for (int i = 0; i < 4; i++) {
 					for (int j = 0; j < 4; j++) {

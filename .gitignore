@@ -1,5 +1,6 @@
 # Runtime Data
 ams/ams/data/recording/
+python/data/recording/
 
 *.i
 *.ii
