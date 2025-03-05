@@ -80,7 +80,7 @@ struct Recorder {
 		int result = fwrite(this->depth_memory, sizeof(float), this->depth_count, depth_file);
 		fclose(depth_file);
 
-		FILE* position_file = fopen(depth_path.c_str(), "wb+");
+		FILE* position_file = fopen(position_path.c_str(), "wb+");
 		if (position_file == NULL) {
 			printf("\n\nWarning: File did not open when saving position memory:\n    %s!\n", position_path.c_str());
 			exit(1);
@@ -88,7 +88,7 @@ struct Recorder {
 		result = fwrite(this->position_memory, sizeof(Vector3), CONFIG::RecordingSize(), position_file);
 		fclose(position_file);
 
-		FILE* rotation_file = fopen(depth_path.c_str(), "wb+");
+		FILE* rotation_file = fopen(rotation_path.c_str(), "wb+");
 		if (rotation_file == NULL) {
 			printf("\n\nWarning: File did not open when saving rotation memory:\n    %s!\n", rotation_path.c_str());
 			exit(1);
