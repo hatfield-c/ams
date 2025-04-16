@@ -60,6 +60,10 @@ struct FlightController {
             this->mav_data->position.x = data.position.east_m;
             this->mav_data->position.y = -data.position.down_m;
             this->mav_data->position.z = data.position.north_m;
+
+            this->mav_data->velocity.x = data.velocity.east_m_s;
+            this->mav_data->velocity.y = -data.velocity.down_m_s;
+            this->mav_data->velocity.x = data.velocity.north_m_s;
         });
 
         this->mav_data->quaternion_handle = this->telemtry->subscribe_attitude_quaternion([=](mavsdk::Telemetry::Quaternion quaternion) {
