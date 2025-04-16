@@ -127,5 +127,11 @@ struct Recorder {
 		}
 		result = fwrite(this->velocity_memory, sizeof(Vector3), CONFIG::RecordingSize(), velocity_file);
 		fclose(velocity_file);
+
+		for (int i = CONFIG::RecordingSize() - 10; i < CONFIG::RecordingSize(); i++) {
+			this->position_memory[i].Print("", "");
+			this->rotation_memory[i].Print("", "");
+			this->velocity_memory[i].Print("");
+		}
 	}
 };
