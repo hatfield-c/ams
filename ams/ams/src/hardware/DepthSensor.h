@@ -41,6 +41,6 @@ struct DepthSensor {
 		rs2::frameset depth_frames = this->depth_pipe.wait_for_frames();
 		unsigned short* raw_depth = (unsigned short*)depth_frames.get_data();
 
-		this->recorder.Perceive(raw_depth, mav_data->position, mav_data->quaternion);
+		this->recorder.Perceive(raw_depth, mav_data->position, mav_data->quaternion, mav_data->velocity);
 	}
 };

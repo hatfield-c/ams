@@ -4,7 +4,7 @@ typedef char byte;
 
 struct CONFIG {
     static int RecordingSize() {
-        return 20 * 40 * 1;
+        return 20 * 60 * 5;
     }
 
     static float DeltaTime() {
