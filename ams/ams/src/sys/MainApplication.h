@@ -4,7 +4,7 @@
 
 #include "../CONFIG.h"
 #include "../hardware/DepthSensor.h"
-//#include "../hardware/FlightController.h"
+#include "../hardware/FlightController.h"
 #include "../hardware/MavData.h"
 
 typedef char byte;
@@ -13,7 +13,7 @@ struct MainApplication {
 
 	MavData* mav_data = new MavData{};
 	DepthSensor depth_sensor{};
-	//FlightController flight_controller{};
+	FlightController flight_controller{};
 
 	std::chrono::steady_clock::time_point frame_begin_time = std::chrono::steady_clock::now();
 
@@ -22,13 +22,13 @@ struct MainApplication {
 		printf("Initializing...\n");
 
 		this->depth_sensor.Init();
-		//this->flight_controller.Init(this->mav_data);
+		this->flight_controller.Init(this->mav_data);
 	}
 
 	void Run() {
 		printf("Running...\n");
 
-		//this->flight_controller.Start();
+		this->flight_controller.Start();
 
 		for (int i = 0; i < CONFIG::RecordingSize(); i++) {
 			this->FrameSleep();
@@ -36,7 +36,7 @@ struct MainApplication {
 		}
 		
 		this->depth_sensor.recorder.SaveMemory();
-		//this->flight_controller.Stop();
+		this->flight_controller.Stop();
 	}
 
 	void FrameSleep() {
