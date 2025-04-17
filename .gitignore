@@ -1,6 +1,11 @@
 # Runtime Data
 ams/ams/data/recording/
-python/data/recording/
+
+extractor/*
+!extractor/extractor/
+extractor/extractor/*
+!extractor/extractor/src/
+!extractor/extractor/lib/
 
 *.i
 *.ii
