@@ -1,7 +1,10 @@
 #pragma once
 
 #include <string>
+#include <vector>
+
 #include "stb_image_write.h"
+#include "happly.h"
 
 #include "../CONFIG.h"
 #include "Indexer.h"
@@ -66,6 +69,31 @@ struct CloudExtractor {
 	}
 
 	void Run() {
+		this->ExtractRawData();
+		this->ExtractPointCloud();
+	}
+
+	void ExtractPointCloud() {
+		unsigned long long frame_index = 300;
+
+		happly::PLYData ply_out = happly::PLYData();
+
+		std::vector<std::array<double, 3>> vertices;
+
+		for (double i = 0; i < 10; i+=0.5) {
+			for (double j = 0; j < 10; j += 0.5) {
+				for (double k = 0; k < 10; k += 0.5) {
+					std::array<double, 3> point = { i, j, k };
+					vertices.push_back(point);
+				}
+			}
+		}
+
+		ply_out.addVertexPositions(vertices);
+		ply_out.write("data/ply/field.ply", happly::DataFormat::Binary);
+	}
+
+	void ExtractRawData() {
 		for (unsigned long long i = CONFIG::RecordingSize() - 10; i < CONFIG::RecordingSize(); i++) {
 			this->position_memory[i].Print("", "");
 			this->rotation_memory[i].Print("", "");
