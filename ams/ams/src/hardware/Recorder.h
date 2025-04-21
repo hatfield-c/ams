@@ -42,8 +42,7 @@ struct Recorder {
 				raw_position = raw_position * 16;
 				raw_position.x += invalid_depth_band;
 
-				float avg_depth = 20.0f;
-				int avg_count = 0;
+				float min_depth = 20.0f;
 				for (int i = 0; i < 35; i++) {
 					for (int j = 0; j < 30; j++) {
 						
@@ -54,29 +53,18 @@ struct Recorder {
 							depth = 60.0f;
 						}
 
-						depth = Math::Clip(depth, 0.5, 20.0);
+						if (depth > 20.0f) {
+							depth = 20.0f;
+						}
 
-						if (depth < 20.0f) {
-							if (avg_depth == 20.0f) {
-								avg_depth = depth;
-							}
-							else {
-								avg_depth += depth;
-							}
-
-							avg_count++;
+						if (depth < 20.0f && depth < min_depth) {
+							min_depth = depth;
 						}
 					}
 				}
 				
-				if (avg_count == 0) {
-					avg_count = 1;
-				}
-
-				avg_depth = avg_depth / avg_count;
-
 				unsigned long long memory_pixel_index = Indexer::FlatIndex3(x, y, this->memory_index, mem_size.x, mem_size.y);
-				this->depth_memory[memory_pixel_index] = avg_depth;
+				this->depth_memory[memory_pixel_index] = min_depth;
 			}
 		}
 
