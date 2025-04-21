@@ -11,15 +11,15 @@
 
 struct Recorder {
 
-	Vector2 mem_size{ 140, 120 };
+	Vector2 mem_size{ 16, 16 };
 
-	float* depth_memory = new float[CONFIG::RecordingSize() * 140 * 120];
+	float* depth_memory = new float[CONFIG::RecordingSize() * 16 * 16];
 	Vector3* position_memory = new Vector3[CONFIG::RecordingSize()];
 	Vector4* rotation_memory = new Vector4[CONFIG::RecordingSize()];
 	Vector3* velocity_memory = new Vector3[CONFIG::RecordingSize()];
 	unsigned long long memory_index = 0;
 
-	unsigned long long depth_data_size = (unsigned long long)(CONFIG::RecordingSize() * 140 * 120);
+	unsigned long long depth_data_size = (unsigned long long)(CONFIG::RecordingSize() * 16 * 16);
 
 	float max_distance = 20.0f;
 
@@ -33,19 +33,19 @@ struct Recorder {
 	void Perceive(unsigned short* raw_depth, Vector3 position, Vector4 rotation, Vector3 velocity) {
 		Vector2 raw_size{ 640, 480 };
 		Vector2 clip_size{ 560, 480 };
-		Vector2 mem_size = (clip_size / 4).Floor();
+		Vector2 mem_size = (clip_size / Vector2{ 35, 30 }).Floor();
 		int invalid_depth_band = raw_size.x - clip_size.x - 1;
 
 		for (int x = 0; x < mem_size.x; x++) {
 			for (int y = 0; y < mem_size.y; y++) {
 				Vector2 raw_position{ x, y };
-				raw_position = raw_position * 4;
+				raw_position = raw_position * 16;
 				raw_position.x += invalid_depth_band;
 
 				float avg_depth = 20.0f;
 				int avg_count = 0;
-				for (int i = 0; i < 4; i++) {
-					for (int j = 0; j < 4; j++) {
+				for (int i = 0; i < 35; i++) {
+					for (int j = 0; j < 30; j++) {
 						
 						unsigned long long raw_index = Indexer::FlatIndex2(raw_position.x + i, raw_position.y + j, raw_size.x);
 						float depth = raw_depth[raw_index] / 1000.0f;
