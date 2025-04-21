@@ -64,7 +64,7 @@ struct Recorder {
 							min_depth = depth;
 						}
 
-						unsigned long long clipped_index = Indexer::FlatIndex2(clipped_anchor.x + i, clipped_anchor.y + j, this->depth_size.x);
+						unsigned long long clipped_index = Indexer::FlatIndex3(clipped_anchor.x + i, clipped_anchor.y + j, this->memory_index, this->depth_size.x, this->depth_size.y);
 						this->depth_memory[clipped_index] = depth;
 					}
 				}
