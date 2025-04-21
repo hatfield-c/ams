@@ -11,61 +11,61 @@
 
 struct Recorder {
 
-	Vector2 mem_size{ 560, 480 };
+	Vector2 raw_size{ 640.0f, 480.0f };
+	Vector2 depth_size{ 560.0f, 480.0f };
+	Vector2 phash_size{ 16.0f, 16.0f };
+	Vector2 block_size{ 560.0f / 16.0f, 480.0f / 16.0f };
 
 	float* depth_memory = new float[CONFIG::RecordingSize() * 560 * 480];
+	float* phash_memory = new float[CONFIG::RecordingSize() * 16 * 16];
 	Vector3* position_memory = new Vector3[CONFIG::RecordingSize()];
 	Vector4* rotation_memory = new Vector4[CONFIG::RecordingSize()];
 	Vector3* velocity_memory = new Vector3[CONFIG::RecordingSize()];
 	unsigned long long memory_index = 0;
 
 	unsigned long long depth_data_size = (unsigned long long)(CONFIG::RecordingSize() * 560 * 480);
+	unsigned long long phash_data_size = (unsigned long long)(CONFIG::RecordingSize() * 16 * 16);
 
 	float max_distance = 20.0f;
 
 	void Init() {
 		memset(this->depth_memory, 0, this->depth_data_size * sizeof(float));
+		memset(this->phash_memory, 0, this->phash_data_size * sizeof(float));
 		memset(this->position_memory, 0, CONFIG::RecordingSize() * sizeof(Vector3));
 		memset(this->rotation_memory, 0, CONFIG::RecordingSize() * sizeof(Vector4));
 		memset(this->velocity_memory, 0, CONFIG::RecordingSize() * sizeof(Vector3));
 	}
 
 	void Perceive(unsigned short* raw_depth, Vector3 position, Vector4 rotation, Vector3 velocity) {
-		Vector2 raw_size{ 640, 480 };
-		Vector2 clip_size{ 560, 480 };
-		//Vector2 mem_size = (clip_size / Vector2{ 35, 30 }).Floor();
-		Vector2 mem_size = (clip_size / Vector2{ 1, 1 }).Floor();
-		int invalid_depth_band = raw_size.x - clip_size.x - 1;
+		int invalid_depth_band = this->raw_size.x - this->depth_size.x - 1;
 
-		for (int x = 0; x < mem_size.x; x++) {
-			for (int y = 0; y < mem_size.y; y++) {
-				Vector2 raw_position{ x, y };
-				raw_position = raw_position * 1;
-				raw_position.x += invalid_depth_band;
+		for (int x = 0; x < this->phash_size.x; x++) {
+			for (int y = 0; y < this->phash_size.y; y++) {
+				Vector2 chunk_anchor{ x, y };
+				chunk_anchor = chunk_anchor * this->block_size;
+				chunk_anchor.x += invalid_depth_band;
 
 				float min_depth = 20.0f;
-				for (int i = 0; i < 1; i++) {
-					for (int j = 0; j < 1; j++) {
-						
-						unsigned long long raw_index = Indexer::FlatIndex2(raw_position.x + i, raw_position.y + j, raw_size.x);
+				for (int i = 0; i < this->block_size.x; i++) {
+					for (int j = 0; j < this->block_size.y; j++) {
+
+						unsigned long long raw_index = Indexer::FlatIndex2(chunk_anchor.x + i, chunk_anchor.y + j, this->raw_size.x);
 						float depth = raw_depth[raw_index] / 1000.0f;
 
-						if (depth < 0.5f) {
-							depth = 60.0f;
-						}
-
-						if (depth > 20.0f) {
+						if (depth < 0.5f || depth > 20.0f) {
 							depth = 20.0f;
 						}
 
-						if (depth < 20.0f && depth < min_depth) {
+						if (depth < min_depth) {
 							min_depth = depth;
 						}
+
+						this->depth_memory[raw_index] = depth;
 					}
 				}
 				
-				unsigned long long memory_pixel_index = Indexer::FlatIndex3(x, y, this->memory_index, mem_size.x, mem_size.y);
-				this->depth_memory[memory_pixel_index] = min_depth;
+				unsigned long long memory_pixel_index = Indexer::FlatIndex3(x, y, this->memory_index, phash_size.x, phash_size.y);
+				this->phash_memory[memory_pixel_index] = min_depth;
 			}
 		}
 
@@ -81,6 +81,7 @@ struct Recorder {
 
 	void SaveMemory() {
 		std::string depth_path = "data/recording/depth.float";
+		std::string phash_path = "data/recording/phash.float";
 		std::string position_path = "data/recording/position.vector3";
 		std::string rotation_path = "data/recording/rotation.vector4";
 		std::string velocity_path = "data/recording/velocity.vector3";
@@ -92,6 +93,14 @@ struct Recorder {
 		}
 		int result = fwrite(this->depth_memory, sizeof(float), this->depth_data_size, depth_file);
 		fclose(depth_file);
+
+		FILE* phash_file = fopen(phash_path.c_str(), "wb+");
+		if (phash_file == NULL) {
+			printf("\n\nWarning: File did not open when saving phash memory:\n    %s!\n", phash_path.c_str());
+			exit(1);
+		}
+		result = fwrite(this->phash_memory, sizeof(float), this->phash_data_size, phash_file);
+		fclose(phash_file);
 
 		FILE* position_file = fopen(position_path.c_str(), "wb+");
 		if (position_file == NULL) {
