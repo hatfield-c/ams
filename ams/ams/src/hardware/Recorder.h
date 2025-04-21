@@ -40,7 +40,7 @@ struct Recorder {
 		for (int x = 0; x < mem_size.x; x++) {
 			for (int y = 0; y < mem_size.y; y++) {
 				Vector2 raw_position{ x, y };
-				raw_position = raw_position * 16;
+				raw_position = raw_position * 1;
 				raw_position.x += invalid_depth_band;
 
 				float min_depth = 20.0f;
