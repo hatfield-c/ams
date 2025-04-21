@@ -42,15 +42,19 @@ struct Recorder {
 		for (int x = 0; x < this->phash_size.x; x++) {
 			for (int y = 0; y < this->phash_size.y; y++) {
 				Vector2 chunk_anchor{ x, y };
+				Vector2 clipped_anchor{ x, y };
+
 				chunk_anchor = chunk_anchor * this->block_size;
+				clipped_anchor = clipped_anchor * this->block_size;
+
 				chunk_anchor.x += invalid_depth_band;
 
 				float min_depth = 20.0f;
 				for (int i = 0; i < this->block_size.x; i++) {
 					for (int j = 0; j < this->block_size.y; j++) {
 
-						unsigned long long raw_index = Indexer::FlatIndex2(chunk_anchor.x + i, chunk_anchor.y + j, this->raw_size.x);
-						float depth = raw_depth[raw_index] / 1000.0f;
+						unsigned long long chunk_index = Indexer::FlatIndex2(chunk_anchor.x + i, chunk_anchor.y + j, this->raw_size.x);
+						float depth = raw_depth[chunk_index] / 1000.0f;
 
 						if (depth < 0.5f || depth > 20.0f) {
 							depth = 20.0f;
@@ -60,7 +64,8 @@ struct Recorder {
 							min_depth = depth;
 						}
 
-						this->depth_memory[raw_index] = depth;
+						unsigned long long clipped_index = Indexer::FlatIndex2(clipped_anchor.x + i, clipped_anchor.y + j, this->depth_size.x);
+						this->depth_memory[clipped_index] = depth;
 					}
 				}
 				
